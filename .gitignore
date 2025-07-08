@@ -1,2 +1,6 @@
 # created by virtualenv automatically
 *
+!.gitignore
+!similarity.pkl
+movies.pkl
+movie_dict.pkl
