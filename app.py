@@ -76,6 +76,12 @@ st.set_page_config(
 # Custom CSS for better styling
 st.markdown("""
 <style>
+    /* Global transparency and backdrop */
+    .stApp {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        backdrop-filter: blur(10px);
+    }
+    
     .main-header {
         text-align: center;
         color: #FF6B6B;
@@ -83,106 +89,246 @@ st.markdown("""
         font-weight: bold;
         margin-bottom: 2rem;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
     
     .movie-card {
-        background: linear-gradient(145deg, #f0f0f0, #ffffff);
-        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
         padding: 20px;
         margin: 10px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15), 
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
         text-align: center;
-        height: 480px;
+        height: 520px;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+    
+    .movie-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    }
+    
+    .movie-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 
+                    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.4);
     }
     
     .movie-title {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         font-weight: bold;
-        color: #333;
+        color: #2c3e50;
         margin-bottom: 15px;
-        height: 50px;
+        height: 60px;
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
-        line-height: 1.2;
+        line-height: 1.3;
         overflow: hidden;
         text-overflow: ellipsis;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        padding: 10px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
     
     .poster-container {
-        height: 350px;
+        height: 380px;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        border-radius: 10px;
-        background: #f8f9fa;
+        border-radius: 15px;
+        background: rgba(248, 249, 250, 0.2);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .poster-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, 
+            rgba(255, 255, 255, 0.1) 0%, 
+            transparent 50%, 
+            rgba(255, 255, 255, 0.1) 100%);
+        pointer-events: none;
     }
     
     .poster-image {
         max-width: 100%;
         max-height: 100%;
         object-fit: cover;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        filter: brightness(1.05) contrast(1.1);
+    }
+    
+    .poster-image:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+        filter: brightness(1.1) contrast(1.15);
     }
     
     .movie-info {
-        margin-top: 10px;
-        padding: 5px;
-        height: 40px;
+        margin-top: 15px;
+        padding: 8px;
+        height: 45px;
         display: flex;
         align-items: center;
         justify-content: center;
+        background: rgba(78, 205, 196, 0.2);
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(78, 205, 196, 0.3);
     }
     
     .search-section {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 30px;
-        border-radius: 20px;
+        background: rgba(102, 126, 234, 0.15);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 35px;
+        border-radius: 25px;
         margin-bottom: 30px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .search-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, 
+            rgba(102, 126, 234, 0.1) 0%, 
+            rgba(118, 75, 162, 0.1) 100%);
+        pointer-events: none;
     }
     
     .search-title {
         color: white;
-        font-size: 1.5rem;
+        font-size: 1.6rem;
         font-weight: bold;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         text-align: center;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 1;
     }
     
     .recommend-button {
-        background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+        background: linear-gradient(45deg, rgba(255, 107, 107, 0.9), rgba(255, 142, 83, 0.9));
+        backdrop-filter: blur(10px);
         color: white;
-        border: none;
-        padding: 15px 30px;
-        border-radius: 25px;
-        font-size: 1.2rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 18px 35px;
+        border-radius: 30px;
+        font-size: 1.3rem;
         font-weight: bold;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         width: 100%;
-        margin-top: 20px;
+        margin-top: 25px;
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 1;
     }
     
     .recommend-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 12px 35px rgba(255, 107, 107, 0.5),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        background: linear-gradient(45deg, rgba(255, 107, 107, 1), rgba(255, 142, 83, 1));
     }
     
     .recommendations-header {
         text-align: center;
         color: #4ECDC4;
-        font-size: 2.5rem;
+        font-size: 2.8rem;
         font-weight: bold;
-        margin: 40px 0 30px 0;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        margin: 50px 0 40px 0;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        padding: 25px;
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Enhanced glassmorphism for metric cards */
+    .metric-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Selectbox styling */
+    .stSelectbox > div > div {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+    }
+    
+    /* Button styling */
+    .stButton > button {
+        background: rgba(78, 205, 196, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(78, 205, 196, 0.4);
+        border-radius: 12px;
+        color: #2c3e50;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .stButton > button:hover {
+        background: rgba(78, 205, 196, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -217,7 +363,7 @@ if st.button('🎯 Get Recommendations', key="recommend_btn"):
     
     for i, col in enumerate(columns):
         with col:
-            # Create the complete movie card with embedded image
+            # Create the complete movie card with enhanced glassmorphism effect
             st.markdown(f'''
             <div class="movie-card">
                 <div class="movie-title">{names[i]}</div>
@@ -225,7 +371,7 @@ if st.button('🎯 Get Recommendations', key="recommend_btn"):
                     <img src="{posters[i]}" class="poster-image" alt="{names[i]} Poster"/>
                 </div>
                 <div class="movie-info">
-                    <small style="color: #666;">⭐⭐⭐⭐ Recommended</small>
+                    <small style="color: #4ECDC4; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">⭐⭐⭐⭐ Highly Recommended</small>
                 </div>
             </div>
             ''', unsafe_allow_html=True)
@@ -240,29 +386,41 @@ else:
     # Add some additional UI elements
     st.markdown("---")
     
-    # Statistics section
+    # Statistics section with enhanced styling
     col1, col2, col3 = st.columns(3)
     
     with col1:
+        st.markdown('''
+        <div class="metric-card">
+        ''', unsafe_allow_html=True)
         st.metric(
             label="📚 Total Movies",
             value=len(movies),
             help="Number of movies in our database"
         )
+        st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
+        st.markdown('''
+        <div class="metric-card">
+        ''', unsafe_allow_html=True)
         st.metric(
             label="🎯 Recommendation Accuracy",
             value="95%",
             help="Based on user feedback and ratings"
         )
+        st.markdown('</div>', unsafe_allow_html=True)
     
     with col3:
+        st.markdown('''
+        <div class="metric-card">
+        ''', unsafe_allow_html=True)
         st.metric(
             label="⚡ Response Time",
             value="< 2s",
             help="Average time to generate recommendations"
         )
+        st.markdown('</div>', unsafe_allow_html=True)
     
     # Instructions
     st.markdown("---")
