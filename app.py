@@ -17,7 +17,46 @@ os.environ["NO_PROXY"] = "api.themoviedb.org"
 # 3. Replace with your actual TMDB API key
 API_KEY = "c008f05f40751473faa5440ef86e2e2c"
 
-# 4. Enhanced poster fetching with better error handling
+# 4. Enhanced movie data fetching with better error handling
+def fetch_movie_details(movie_id):
+    """Fetch comprehensive movie details from TMDB API with caching"""
+    # Check cache first
+    if movie_id in st.session_state.filter_cache:
+        return st.session_state.filter_cache[movie_id]
+    
+    try:
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}&language=en-US"
+        response = requests.get(url, timeout=15)
+        response.raise_for_status()
+        data = response.json()
+        
+        movie_details = {
+            'poster_path': data.get('poster_path'),
+            'genres': [genre['name'] for genre in data.get('genres', [])],
+            'release_date': data.get('release_date', ''),
+            'vote_average': data.get('vote_average', 0),
+            'runtime': data.get('runtime', 0),
+            'overview': data.get('overview', '')
+        }
+        
+        # Cache the result
+        st.session_state.filter_cache[movie_id] = movie_details
+        return movie_details
+        
+    except Exception as e:
+        print(f"Error fetching details for movie_id {movie_id}:", e)
+        fallback_details = {
+            'poster_path': None,
+            'genres': [],
+            'release_date': '',
+            'vote_average': 0,
+            'runtime': 0,
+            'overview': ''
+        }
+        # Cache the fallback too to avoid repeated failures
+        st.session_state.filter_cache[movie_id] = fallback_details
+        return fallback_details
+
 def fetch_poster(movie_id):
     try:
         url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}&language=en-US"
@@ -43,27 +82,80 @@ def create_fallback_poster(text):
     encoded_text = text.replace(" ", "+")
     return f"https://via.placeholder.com/500x750/667eea/ffffff?text={encoded_text}&font=Arial"
 
-# 5. Recommend movies
-def recommend(movie):
+# 5. Recommend movies with filtering
+def recommend(movie, filter_genre=None, filter_year_range=None, filter_rating_min=None):
     movie_index = movies[movies['title'] == movie].index[0]
     distances = similarity[movie_index]
-    movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
+    movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:]
 
     recommended_movies = []
     recommended_movies_posters = []
+    recommended_details = []
 
+    # If no filters, return top 5
+    if not any([filter_genre, filter_year_range, filter_rating_min]):
+        for i in movies_list[:5]:
+            movie_id = movies.iloc[i[0]].movie_id
+            recommended_movies.append(movies.iloc[i[0]].title)
+            recommended_movies_posters.append(fetch_poster(movie_id))
+        return recommended_movies, recommended_movies_posters, 5
+    
+    # Apply filters
     for i in movies_list:
+        if len(recommended_movies) >= 5:
+            break
+            
         movie_id = movies.iloc[i[0]].movie_id
-        recommended_movies.append(movies.iloc[i[0]].title)
-        recommended_movies_posters.append(fetch_poster(movie_id))
+        movie_title = movies.iloc[i[0]].title
+        
+        # Fetch movie details for filtering
+        details = fetch_movie_details(movie_id)
+        
+        # Apply genre filter
+        if filter_genre and filter_genre not in details['genres']:
+            continue
+            
+        # Apply year filter
+        if filter_year_range:
+            try:
+                movie_year = int(details['release_date'][:4]) if details['release_date'] else 0
+                if not (filter_year_range[0] <= movie_year <= filter_year_range[1]):
+                    continue
+            except (ValueError, IndexError):
+                continue
+                
+        # Apply rating filter
+        if filter_rating_min and details['vote_average'] < filter_rating_min:
+            continue
+            
+        # If movie passes all filters, add to recommendations
+        recommended_movies.append(movie_title)
+        poster_url = "https://image.tmdb.org/t/p/w500" + details['poster_path'] if details['poster_path'] else create_fallback_poster("No Poster Available")
+        recommended_movies_posters.append(poster_url)
 
-    return recommended_movies, recommended_movies_posters
+    # If we don't have enough filtered results, fill with top unfiltered recommendations
+    filtered_count = len(recommended_movies)
+    if len(recommended_movies) < 5:
+        for i in movies_list:
+            if len(recommended_movies) >= 5:
+                break
+            movie_id = movies.iloc[i[0]].movie_id
+            movie_title = movies.iloc[i[0]].title
+            if movie_title not in recommended_movies:
+                recommended_movies.append(movie_title)
+                recommended_movies_posters.append(fetch_poster(movie_id))
+
+    return recommended_movies[:5], recommended_movies_posters[:5], filtered_count
 
 # 6. Load data
 movies_dict = pickle.load(open('movie_dict.pkl', 'rb'))
 movies = pd.DataFrame(movies_dict)
 
 similarity = pickle.load(open('similarity.pkl', 'rb'))
+
+# Initialize session state for filters
+if 'filter_cache' not in st.session_state:
+    st.session_state.filter_cache = {}
 
 # 7. Enhanced Streamlit UI
 st.set_page_config(
@@ -459,6 +551,100 @@ st.markdown("""
     .stMarkdown {
         width: 100%;
     }
+    
+    /* Filter section styling */
+    .filter-container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .filter-title {
+        color: #4ECDC4;
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        text-align: center;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    
+    .filter-section {
+        margin-bottom: 15px;
+    }
+    
+    .filter-label {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 8px;
+        display: block;
+    }
+    
+    /* Streamlit checkbox styling */
+    .stCheckbox {
+        margin-bottom: 10px;
+    }
+    
+    .stCheckbox > label {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s ease;
+    }
+    
+    .stCheckbox > label:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+    }
+    
+    /* Selectbox and slider improvements */
+    .stSelectbox > div > div, .stSlider > div {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 10px;
+    }
+    
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+    }
+    
+    .filter-button {
+        background: rgba(78, 205, 196, 0.2);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(78, 205, 196, 0.4);
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        min-width: 120px;
+    }
+    
+    .filter-button:hover {
+        background: rgba(78, 205, 196, 0.35);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+        border-color: rgba(78, 205, 196, 0.6);
+    }
+    
+    .filter-button.active {
+        background: rgba(78, 205, 196, 0.5);
+        border-color: rgba(78, 205, 196, 0.8);
+        box-shadow: 0 4px 15px rgba(78, 205, 196, 0.5);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -477,15 +663,109 @@ selected_movie_name = st.selectbox(
 
 st.markdown('</div>', unsafe_allow_html=True)
 
-# Center the button
+# Filter Section
+st.markdown('<div class="filter-container">', unsafe_allow_html=True)
+st.markdown('<div class="filter-title">🎛️ Advanced Filters (Optional)</div>', unsafe_allow_html=True)
+
+# Create filter columns
+filter_col1, filter_col2, filter_col3 = st.columns(3)
+
+with filter_col1:
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    enable_genre_filter = st.checkbox("🎭 Filter by Genre")
+    if enable_genre_filter:
+        genre_options = [
+            "Action", "Adventure", "Animation", "Comedy", "Crime", "Documentary", 
+            "Drama", "Family", "Fantasy", "History", "Horror", "Music", 
+            "Mystery", "Romance", "Science Fiction", "TV Movie", "Thriller", 
+            "War", "Western"
+        ]
+        selected_genre = st.selectbox("Select Genre:", genre_options)
+    else:
+        selected_genre = None
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with filter_col2:
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    enable_year_filter = st.checkbox("📅 Filter by Year")
+    if enable_year_filter:
+        year_range = st.slider(
+            "Release Year Range:",
+            min_value=1970,
+            max_value=2024,
+            value=(2000, 2024),
+            step=1
+        )
+    else:
+        year_range = None
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with filter_col3:
+    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
+    enable_rating_filter = st.checkbox("⭐ Filter by Rating")
+    if enable_rating_filter:
+        min_rating = st.slider(
+            "Minimum Rating:",
+            min_value=0.0,
+            max_value=10.0,
+            value=7.0,
+            step=0.1
+        )
+    else:
+        min_rating = None
+    st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Center the button with filter status
 col1, col2, col3 = st.columns([1, 1, 1])
 with col2:
-    recommend_clicked = st.button('🎯 Get Recommendations', key="recommend_btn")
+    # Show active filters count
+    active_filters = sum([enable_genre_filter, enable_year_filter, enable_rating_filter])
+    button_text = f'🎯 Get Recommendations'
+    if active_filters > 0:
+        button_text += f' ({active_filters} filter{"s" if active_filters > 1 else ""})'
+    
+    recommend_clicked = st.button(button_text, key="recommend_btn")
 
 if recommend_clicked:
+    # Prepare filter parameters
+    filter_genre = selected_genre if enable_genre_filter else None
+    filter_year_range = year_range if enable_year_filter else None
+    filter_rating_min = min_rating if enable_rating_filter else None
+    
+    # Show filter status
+    if any([filter_genre, filter_year_range, filter_rating_min]):
+        filter_info = []
+        if filter_genre:
+            filter_info.append(f"Genre: {filter_genre}")
+        if filter_year_range:
+            filter_info.append(f"Year: {filter_year_range[0]}-{filter_year_range[1]}")
+        if filter_rating_min:
+            filter_info.append(f"Rating: ≥{filter_rating_min}")
+        
+        st.info(f"🔍 Applied filters: {' • '.join(filter_info)}")
+    
     # Loading animation
-    with st.spinner('🎬 Finding amazing movies for you...'):
-        names, posters = recommend(selected_movie_name)
+    loading_text = '🎬 Finding amazing movies for you'
+    if any([filter_genre, filter_year_range, filter_rating_min]):
+        loading_text += ' with your filters'
+    loading_text += '...'
+    
+    with st.spinner(loading_text):
+        names, posters, filtered_count = recommend(
+            selected_movie_name, 
+            filter_genre=filter_genre,
+            filter_year_range=filter_year_range,
+            filter_rating_min=filter_rating_min
+        )
+    
+    # Show filtering results
+    if any([filter_genre, filter_year_range, filter_rating_min]):
+        if filtered_count == 0:
+            st.warning("⚠️ No movies found matching your filters. Showing top recommendations instead.")
+        elif filtered_count < 5:
+            st.success(f"✅ Found {filtered_count} movies matching your filters. Added {5-filtered_count} similar movies to complete the recommendations.")
     
     # Recommendations header
     st.markdown('<h2 class="recommendations-header">🌟 Recommended Movies for You</h2>', unsafe_allow_html=True)
