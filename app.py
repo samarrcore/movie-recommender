@@ -390,14 +390,17 @@ st.markdown("""
         background: rgba(78, 205, 196, 0.2);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(78, 205, 196, 0.4);
-        border-radius: 15px;
+        border-radius: 12px;
         color: #2c3e50;
         font-weight: 600;
         transition: all 0.3s ease;
-        width: 100%;
-        padding: 12px 24px;
-        font-size: 1.1rem;
-        min-height: 50px;
+        width: auto;
+        max-width: 200px;
+        padding: 8px 16px;
+        font-size: 0.95rem;
+        min-height: 40px;
+        margin: 0 auto;
+        display: block;
     }
     
     .stButton > button:hover {
@@ -455,9 +458,9 @@ st.markdown("""
 # Main title
 st.markdown('<h1 class="main-header">🎬 Movie Recommender System</h1>', unsafe_allow_html=True)
 
-# Search section
-st.markdown('<div class="search-section">', unsafe_allow_html=True)
-st.markdown('<div class="search-title">🔍 Find Your Next Favorite Movie</div>', unsafe_allow_html=True)
+# Movie selection section
+st.markdown('<div style="margin: 30px 0; text-align: center;">', unsafe_allow_html=True)
+st.markdown('<h3 style="color: #4ECDC4; margin-bottom: 20px;">🔍 Find Your Next Favorite Movie</h3>', unsafe_allow_html=True)
 
 selected_movie_name = st.selectbox(
     'Select a movie to get personalized recommendations:',
@@ -465,9 +468,14 @@ selected_movie_name = st.selectbox(
     help="Choose from over 5000 movies in our database"
 )
 
-if st.button('🎯 Get Recommendations', key="recommend_btn"):
-    st.markdown('</div>', unsafe_allow_html=True)  # Close search section
-    
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Center the button
+col1, col2, col3 = st.columns([1, 1, 1])
+with col2:
+    recommend_clicked = st.button('🎯 Get Recommendations', key="recommend_btn")
+
+if recommend_clicked:
     # Loading animation
     with st.spinner('🎬 Finding amazing movies for you...'):
         names, posters = recommend(selected_movie_name)
@@ -509,8 +517,6 @@ if st.button('🎯 Get Recommendations', key="recommend_btn"):
     st.markdown('</div>', unsafe_allow_html=True)
 
 else:
-    st.markdown('</div>', unsafe_allow_html=True)  # Close search section if button not clicked
-    
     # Add some additional UI elements
     st.markdown("---")
     
