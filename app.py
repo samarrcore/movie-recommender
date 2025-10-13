@@ -567,13 +567,20 @@ st.markdown("""
         color: #4ECDC4;
         font-size: 1.3rem;
         font-weight: bold;
-        margin-bottom: 15px;
+        margin: 0 0 20px 0;
+        padding: 0;
         text-align: center;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        background: none;
+        border: none;
     }
     
     .filter-section {
         margin-bottom: 15px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .filter-label {
@@ -664,14 +671,15 @@ selected_movie_name = st.selectbox(
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Filter Section
-st.markdown('<div class="filter-container">', unsafe_allow_html=True)
-st.markdown('<div class="filter-title">🎛️ Advanced Filters (Optional)</div>', unsafe_allow_html=True)
+st.markdown('''
+<div class="filter-container">
+    <div class="filter-title">🎛️ Advanced Filters (Optional)</div>
+''', unsafe_allow_html=True)
 
 # Create filter columns
 filter_col1, filter_col2, filter_col3 = st.columns(3)
 
 with filter_col1:
-    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
     enable_genre_filter = st.checkbox("🎭 Filter by Genre")
     if enable_genre_filter:
         genre_options = [
@@ -683,10 +691,8 @@ with filter_col1:
         selected_genre = st.selectbox("Select Genre:", genre_options)
     else:
         selected_genre = None
-    st.markdown('</div>', unsafe_allow_html=True)
 
 with filter_col2:
-    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
     enable_year_filter = st.checkbox("📅 Filter by Year")
     if enable_year_filter:
         year_range = st.slider(
@@ -698,10 +704,8 @@ with filter_col2:
         )
     else:
         year_range = None
-    st.markdown('</div>', unsafe_allow_html=True)
 
 with filter_col3:
-    st.markdown('<div class="filter-section">', unsafe_allow_html=True)
     enable_rating_filter = st.checkbox("⭐ Filter by Rating")
     if enable_rating_filter:
         min_rating = st.slider(
@@ -713,8 +717,8 @@ with filter_col3:
         )
     else:
         min_rating = None
-    st.markdown('</div>', unsafe_allow_html=True)
 
+# Close the filter container
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Center the button with filter status
