@@ -101,18 +101,21 @@ st.markdown("""
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 20px;
-        padding: 20px;
-        margin: 10px;
+        padding: 15px;
+        margin: 8px;
         box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15), 
                     inset 0 1px 0 rgba(255, 255, 255, 0.3);
         text-align: center;
-        height: 520px;
+        height: 580px;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
+        justify-content: space-between;
+        align-items: center;
         overflow: hidden;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
+        width: 100%;
+        box-sizing: border-box;
     }
     
     .movie-card::before {
@@ -134,28 +137,32 @@ st.markdown("""
     }
     
     .movie-title {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         font-weight: bold;
         color: #2c3e50;
-        margin-bottom: 15px;
-        height: 60px;
+        margin-bottom: 12px;
+        height: 55px;
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
-        line-height: 1.3;
+        line-height: 1.2;
         overflow: hidden;
         text-overflow: ellipsis;
         background: rgba(255, 255, 255, 0.3);
         border-radius: 12px;
-        padding: 10px;
+        padding: 8px;
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.2);
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        box-sizing: border-box;
+        flex-shrink: 0;
     }
     
     .poster-container {
-        height: 380px;
+        height: 400px;
+        width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -166,6 +173,9 @@ st.markdown("""
         border: 2px solid rgba(255, 255, 255, 0.3);
         position: relative;
         box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+        flex-grow: 1;
+        margin: 10px 0;
+        box-sizing: border-box;
     }
     
     .poster-container::before {
@@ -199,16 +209,57 @@ st.markdown("""
     }
     
     .movie-info {
-        margin-top: 15px;
+        margin-top: 10px;
         padding: 8px;
-        height: 45px;
+        height: auto;
+        min-height: 40px;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         background: rgba(78, 205, 196, 0.2);
         border-radius: 10px;
         backdrop-filter: blur(10px);
         border: 1px solid rgba(78, 205, 196, 0.3);
+        width: 100%;
+        box-sizing: border-box;
+        flex-shrink: 0;
+        gap: 8px;
+    }
+    
+    .movie-rating {
+        font-size: 0.9rem;
+        color: #4ECDC4;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        margin: 0;
+    }
+    
+    .movie-button {
+        background: rgba(78, 205, 196, 0.3);
+        border: 1px solid rgba(78, 205, 196, 0.5);
+        color: #2c3e50;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(5px);
+        text-decoration: none;
+        width: 90%;
+        max-width: 140px;
+        margin: 0 auto;
+        display: block;
+        text-align: center;
+        box-sizing: border-box;
+    }
+    
+    .movie-button:hover {
+        background: rgba(78, 205, 196, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+        border-color: rgba(78, 205, 196, 0.7);
     }
     
     .search-section {
@@ -291,19 +342,39 @@ st.markdown("""
     
     /* Enhanced glassmorphism for metric cards */
     .metric-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        padding: 0;
+        margin: 10px;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        position: relative;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
     }
     
     .metric-card:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        background: rgba(255, 255, 255, 0.18);
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.18),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        border-color: rgba(255, 255, 255, 0.35);
     }
     
     /* Selectbox styling */
@@ -314,21 +385,69 @@ st.markdown("""
         border-radius: 15px;
     }
     
-    /* Button styling */
+    /* Main recommendation button styling */
     .stButton > button {
         background: rgba(78, 205, 196, 0.2);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(78, 205, 196, 0.4);
-        border-radius: 12px;
+        border-radius: 15px;
         color: #2c3e50;
         font-weight: 600;
         transition: all 0.3s ease;
+        width: 100%;
+        padding: 12px 24px;
+        font-size: 1.1rem;
+        min-height: 50px;
     }
     
     .stButton > button:hover {
-        background: rgba(78, 205, 196, 0.3);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        background: rgba(78, 205, 196, 0.35);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+        border-color: rgba(78, 205, 196, 0.6);
+    }
+    
+    .stButton > button:active {
+        transform: translateY(0px);
+        box-shadow: 0 3px 10px rgba(78, 205, 196, 0.3);
+    }
+    
+    /* Column alignment and spacing */
+    .stColumn {
+        padding: 0 8px;
+    }
+    
+    /* Metric card improvements */
+    [data-testid="metric-container"] {
+        background: transparent;
+        border: none;
+        padding: 0;
+    }
+    
+    /* Responsive design for smaller screens */
+    @media (max-width: 768px) {
+        .movie-card {
+            height: 450px;
+            margin: 5px 0;
+        }
+        
+        .poster-container {
+            height: 300px;
+        }
+        
+        .movie-title {
+            font-size: 1rem;
+            height: 45px;
+        }
+    }
+    
+    /* Fix for proper card containment */
+    .element-container {
+        width: 100%;
+    }
+    
+    .stMarkdown {
+        width: 100%;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -356,14 +475,15 @@ if st.button('🎯 Get Recommendations', key="recommend_btn"):
     # Recommendations header
     st.markdown('<h2 class="recommendations-header">🌟 Recommended Movies for You</h2>', unsafe_allow_html=True)
     
-    # Display recommendations in cards
-    col1, col2, col3, col4, col5 = st.columns(5, gap="small")
+    # Display recommendations in properly spaced cards
+    st.markdown('<div style="margin: 20px 0; padding: 10px;">', unsafe_allow_html=True)
+    col1, col2, col3, col4, col5 = st.columns(5, gap="medium")
     
     columns = [col1, col2, col3, col4, col5]
     
     for i, col in enumerate(columns):
         with col:
-            # Create the complete movie card with enhanced glassmorphism effect
+            # Create the complete movie card with all content properly contained
             st.markdown(f'''
             <div class="movie-card">
                 <div class="movie-title">{names[i]}</div>
@@ -371,14 +491,22 @@ if st.button('🎯 Get Recommendations', key="recommend_btn"):
                     <img src="{posters[i]}" class="poster-image" alt="{names[i]} Poster"/>
                 </div>
                 <div class="movie-info">
-                    <small style="color: #4ECDC4; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">⭐⭐⭐⭐ Highly Recommended</small>
+                    <div class="movie-rating">⭐⭐⭐⭐ Highly Recommended</div>
                 </div>
             </div>
             ''', unsafe_allow_html=True)
             
-            # Add a small action button below the card
-            if st.button(f"📖 Details", key=f"info_{i}", help=f"Learn more about {names[i]}"):
-                st.success(f"🎬 Selected: **{names[i]}**")
+            # Add a styled button that fits within the overall design
+            st.markdown(f'''
+            <div style="margin-top: 10px; width: 100%; display: flex; justify-content: center;">
+                <button class="movie-button" onclick="alert('More details about {names[i]} coming soon!')">
+                    📖 Learn More
+                </button>
+            </div>
+            ''', unsafe_allow_html=True)
+    
+    # Close the recommendations container
+    st.markdown('</div>', unsafe_allow_html=True)
 
 else:
     st.markdown('</div>', unsafe_allow_html=True)  # Close search section if button not clicked
@@ -386,41 +514,47 @@ else:
     # Add some additional UI elements
     st.markdown("---")
     
-    # Statistics section with enhanced styling
-    col1, col2, col3 = st.columns(3)
+    # Statistics section with properly contained metrics
+    st.markdown('<div style="margin: 30px 0;">', unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3, gap="medium")
     
     with col1:
-        st.markdown('''
+        st.markdown(f'''
         <div class="metric-card">
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 2rem; margin-bottom: 5px;">📚</div>
+                <div style="font-size: 2.5rem; font-weight: bold; color: #4ECDC4; margin-bottom: 5px;">{len(movies)}</div>
+                <div style="font-size: 1rem; color: #666; font-weight: 600;">Total Movies</div>
+                <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">Number of movies in our database</div>
+            </div>
+        </div>
         ''', unsafe_allow_html=True)
-        st.metric(
-            label="📚 Total Movies",
-            value=len(movies),
-            help="Number of movies in our database"
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
         st.markdown('''
         <div class="metric-card">
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 2rem; margin-bottom: 5px;">🎯</div>
+                <div style="font-size: 2.5rem; font-weight: bold; color: #4ECDC4; margin-bottom: 5px;">95%</div>
+                <div style="font-size: 1rem; color: #666; font-weight: 600;">Recommendation Accuracy</div>
+                <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">Based on user feedback and ratings</div>
+            </div>
+        </div>
         ''', unsafe_allow_html=True)
-        st.metric(
-            label="🎯 Recommendation Accuracy",
-            value="95%",
-            help="Based on user feedback and ratings"
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
     
     with col3:
         st.markdown('''
         <div class="metric-card">
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 2rem; margin-bottom: 5px;">⚡</div>
+                <div style="font-size: 2.5rem; font-weight: bold; color: #4ECDC4; margin-bottom: 5px;">< 2s</div>
+                <div style="font-size: 1rem; color: #666; font-weight: 600;">Response Time</div>
+                <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">Average time to generate recommendations</div>
+            </div>
+        </div>
         ''', unsafe_allow_html=True)
-        st.metric(
-            label="⚡ Response Time",
-            value="< 2s",
-            help="Average time to generate recommendations"
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Instructions
     st.markdown("---")
