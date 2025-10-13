@@ -387,12 +387,13 @@ st.markdown("""
     
     /* Main recommendation button styling */
     .stButton > button {
-        background: rgba(78, 205, 196, 0.2);
+        background: rgba(78, 205, 196, 0.25);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(78, 205, 196, 0.4);
+        border: 2px solid rgba(78, 205, 196, 0.6);
         border-radius: 12px;
-        color: #2c3e50;
-        font-weight: 600;
+        color: white !important;
+        font-weight: 700;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
         transition: all 0.3s ease;
         width: auto;
         max-width: 200px;
@@ -401,18 +402,24 @@ st.markdown("""
         min-height: 40px;
         margin: 0 auto;
         display: block;
+        box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
     }
     
     .stButton > button:hover {
-        background: rgba(78, 205, 196, 0.35);
+        background: rgba(78, 205, 196, 0.45);
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
-        border-color: rgba(78, 205, 196, 0.6);
+        box-shadow: 0 6px 20px rgba(78, 205, 196, 0.5);
+        border-color: rgba(78, 205, 196, 0.8);
+        color: white !important;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
     }
     
     .stButton > button:active {
         transform: translateY(0px);
-        box-shadow: 0 3px 10px rgba(78, 205, 196, 0.3);
+        box-shadow: 0 3px 10px rgba(78, 205, 196, 0.4);
+        background: rgba(78, 205, 196, 0.3);
+        color: white !important;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
     }
     
     /* Column alignment and spacing */
