@@ -159,7 +159,7 @@ if 'filter_cache' not in st.session_state:
 
 # 7. Enhanced Streamlit UI
 st.set_page_config(
-    page_title="Movie Recommender System",
+    page_title="CinemaMatch - Movie Recommendations",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -168,35 +168,39 @@ st.set_page_config(
 # Custom CSS for better styling
 st.markdown("""
 <style>
-    /* Global transparency and backdrop */
+    /* Global styling */
     .stApp {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        backdrop-filter: blur(10px);
+        background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
     }
     
     .main-header {
         text-align: center;
-        color: #FF6B6B;
-        font-size: 3rem;
-        font-weight: bold;
-        margin-bottom: 2rem;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        background: rgba(255, 255, 255, 0.1);
-        padding: 20px;
-        border-radius: 20px;
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        letter-spacing: -0.5px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .header-icon {
+        width: 48px;
+        height: 48px;
+        margin-right: 15px;
+        vertical-align: middle;
+        display: inline-block;
     }
     
     .movie-card {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 20px;
+        background: #1a1a2e;
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        border-radius: 12px;
         padding: 15px;
         margin: 8px;
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15), 
-                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         text-align: center;
         height: 580px;
         display: flex;
@@ -204,49 +208,35 @@ st.markdown("""
         justify-content: space-between;
         align-items: center;
         overflow: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s ease;
         position: relative;
         width: 100%;
         box-sizing: border-box;
     }
     
-    .movie-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    }
-    
     .movie-card:hover {
-        transform: translateY(-8px) scale(1.02);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 
-                    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-        background: rgba(255, 255, 255, 0.25);
-        border-color: rgba(255, 255, 255, 0.4);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        border-color: rgba(102, 126, 234, 0.5);
     }
     
     .movie-title {
-        font-size: 1.1rem;
-        font-weight: bold;
-        color: #2c3e50;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #ffffff;
         margin-bottom: 12px;
         height: 55px;
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
-        line-height: 1.2;
+        line-height: 1.3;
         overflow: hidden;
         text-overflow: ellipsis;
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+        border-radius: 8px;
         padding: 8px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(102, 126, 234, 0.3);
         width: 100%;
         box-sizing: border-box;
         flex-shrink: 0;
@@ -259,60 +249,39 @@ st.markdown("""
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        border-radius: 15px;
-        background: rgba(248, 249, 250, 0.2);
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        background: #0f0f1e;
+        border: 2px solid rgba(102, 126, 234, 0.2);
         position: relative;
-        box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
         flex-grow: 1;
         margin: 10px 0;
         box-sizing: border-box;
-    }
-    
-    .poster-container::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(45deg, 
-            rgba(255, 255, 255, 0.1) 0%, 
-            transparent 50%, 
-            rgba(255, 255, 255, 0.1) 100%);
-        pointer-events: none;
     }
     
     .poster-image {
         max-width: 100%;
         max-height: 100%;
         object-fit: cover;
-        border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        border-radius: 6px;
         transition: all 0.3s ease;
-        filter: brightness(1.05) contrast(1.1);
     }
     
     .poster-image:hover {
-        transform: scale(1.05);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-        filter: brightness(1.1) contrast(1.15);
+        transform: scale(1.03);
     }
     
     .movie-info {
         margin-top: 10px;
-        padding: 8px;
+        padding: 10px;
         height: auto;
         min-height: 40px;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
         justify-content: center;
-        background: rgba(78, 205, 196, 0.2);
-        border-radius: 10px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(78, 205, 196, 0.3);
+        background: rgba(102, 126, 234, 0.15);
+        border-radius: 8px;
+        border: 1px solid rgba(102, 126, 234, 0.3);
         width: 100%;
         box-sizing: border-box;
         flex-shrink: 0;
@@ -320,129 +289,133 @@ st.markdown("""
     }
     
     .movie-rating {
-        font-size: 0.9rem;
-        color: #4ECDC4;
+        font-size: 0.85rem;
+        color: #ffd700;
         font-weight: 600;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .star-icon {
+        width: 16px;
+        height: 16px;
+        fill: #ffd700;
     }
     
     .movie-button {
-        background: rgba(78, 205, 196, 0.3);
-        border: 1px solid rgba(78, 205, 196, 0.5);
-        color: #2c3e50;
-        padding: 8px 16px;
-        border-radius: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: #ffffff;
+        padding: 10px 20px;
+        border-radius: 6px;
         font-size: 0.85rem;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.2s ease;
-        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
         text-decoration: none;
         width: 90%;
         max-width: 140px;
         margin: 0 auto;
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
         text-align: center;
         box-sizing: border-box;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
     
     .movie-button:hover {
-        background: rgba(78, 205, 196, 0.5);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
-        border-color: rgba(78, 205, 196, 0.7);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+    }
+    
+    .button-icon {
+        width: 14px;
+        height: 14px;
+        fill: white;
     }
     
     .search-section {
-        background: rgba(102, 126, 234, 0.15);
-        backdrop-filter: blur(25px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 35px;
-        border-radius: 25px;
+        background: #1a1a2e;
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        padding: 30px;
+        border-radius: 12px;
         margin-bottom: 30px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 
-                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .search-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, 
-            rgba(102, 126, 234, 0.1) 0%, 
-            rgba(118, 75, 162, 0.1) 100%);
-        pointer-events: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
     
     .search-title {
-        color: white;
-        font-size: 1.6rem;
-        font-weight: bold;
-        margin-bottom: 25px;
+        color: #ffffff;
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 20px;
         text-align: center;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        position: relative;
-        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .search-icon {
+        width: 24px;
+        height: 24px;
+        fill: #667eea;
     }
     
     .recommend-button {
-        background: linear-gradient(45deg, rgba(255, 107, 107, 0.9), rgba(255, 142, 83, 0.9));
-        backdrop-filter: blur(10px);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 18px 35px;
-        border-radius: 30px;
-        font-size: 1.3rem;
-        font-weight: bold;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
         cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s ease;
         width: 100%;
-        margin-top: 25px;
-        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        position: relative;
-        z-index: 1;
+        margin-top: 20px;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
     
     .recommend-button:hover {
-        transform: translateY(-3px) scale(1.02);
-        box-shadow: 0 12px 35px rgba(255, 107, 107, 0.5),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        background: linear-gradient(45deg, rgba(255, 107, 107, 1), rgba(255, 142, 83, 1));
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
     }
     
     .recommendations-header {
         text-align: center;
-        color: #4ECDC4;
-        font-size: 2.8rem;
-        font-weight: bold;
-        margin: 50px 0 40px 0;
-        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-        background: rgba(255, 255, 255, 0.1);
-        padding: 25px;
-        border-radius: 20px;
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 40px 0 30px 0;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+        padding: 20px;
+        border-radius: 12px;
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
     }
     
-    /* Enhanced glassmorphism for metric cards */
+    .recommendations-icon {
+        width: 36px;
+        height: 36px;
+        fill: #ffd700;
+    }
+    
+    /* Metric cards */
     .metric-card {
-        background: rgba(255, 255, 255, 0.12);
-        backdrop-filter: blur(25px);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        border-radius: 20px;
+        background: #1a1a2e;
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        border-radius: 12px;
         padding: 0;
         margin: 10px;
-        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
         overflow: hidden;
         position: relative;
         min-height: 160px;
@@ -451,67 +424,54 @@ st.markdown("""
         justify-content: center;
     }
     
-    .metric-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        border-color: rgba(102, 126, 234, 0.5);
     }
     
-    .metric-card:hover {
-        background: rgba(255, 255, 255, 0.18);
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.18),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-        border-color: rgba(255, 255, 255, 0.35);
+    .metric-icon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 10px;
     }
     
     /* Selectbox styling */
     .stSelectbox > div > div {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 15px;
+        background: #1a1a2e;
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        border-radius: 8px;
+        color: white;
     }
     
     /* Main recommendation button styling */
     .stButton > button {
-        background: rgba(78, 205, 196, 0.25);
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(78, 205, 196, 0.6);
-        border-radius: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
         color: white !important;
-        font-weight: 700;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        font-weight: 600;
         transition: all 0.3s ease;
         width: auto;
-        max-width: 200px;
-        padding: 8px 16px;
-        font-size: 0.95rem;
-        min-height: 40px;
+        max-width: 250px;
+        padding: 12px 24px;
+        font-size: 1rem;
+        min-height: 45px;
         margin: 0 auto;
         display: block;
-        box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
     }
     
     .stButton > button:hover {
-        background: rgba(78, 205, 196, 0.45);
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(78, 205, 196, 0.5);
-        border-color: rgba(78, 205, 196, 0.8);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         color: white !important;
-        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
     }
     
     .stButton > button:active {
         transform: translateY(0px);
-        box-shadow: 0 3px 10px rgba(78, 205, 196, 0.4);
-        background: rgba(78, 205, 196, 0.3);
+        box-shadow: 0 3px 12px rgba(102, 126, 234, 0.5);
         color: white !important;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
     }
     
     /* Column alignment and spacing */
@@ -541,6 +501,14 @@ st.markdown("""
             font-size: 1rem;
             height: 45px;
         }
+        
+        .main-header {
+            font-size: 2rem;
+        }
+        
+        .recommendations-header {
+            font-size: 1.5rem;
+        }
     }
     
     /* Fix for proper card containment */
@@ -552,41 +520,70 @@ st.markdown("""
         width: 100%;
     }
     
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #1a1a2e;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #667eea;
+        border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #764ba2;
+    }
+    
     /* Filter section styling */
     .filter-container {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 15px;
-        padding: 20px;
-        margin: 20px 0;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        background: #1a1a2e;
+        border: 2px solid rgba(102, 126, 234, 0.3);
+        border-radius: 12px;
+        padding: 25px;
+        margin: 25px 0;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     }
     
     .filter-title {
-        color: #4ECDC4;
-        font-size: 1.3rem;
-        font-weight: bold;
+        color: #ffffff;
+        font-size: 1.2rem;
+        font-weight: 600;
         margin: 0 0 20px 0;
         padding: 0;
         text-align: center;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        background: none;
-        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .filter-icon {
+        width: 24px;
+        height: 24px;
+        fill: #667eea;
     }
     
     .filter-section {
         margin-bottom: 15px;
-        padding: 10px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 8px;
+        border: 1px solid rgba(102, 126, 234, 0.2);
     }
     
     .filter-label {
-        color: #2c3e50;
+        color: #ffffff;
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 0.95rem;
         margin-bottom: 8px;
         display: block;
     }
@@ -597,70 +594,50 @@ st.markdown("""
     }
     
     .stCheckbox > label {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 8px 12px;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.2s ease;
-    }
-    
-    .stCheckbox > label:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-1px);
+        color: white !important;
+        font-weight: 500;
     }
     
     /* Selectbox and slider improvements */
-    .stSelectbox > div > div, .stSlider > div {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        border-radius: 10px;
+    .stSlider > div {
+        background: transparent;
     }
     
-    .button-container {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin: 20px 0;
-        flex-wrap: wrap;
+    /* Text colors */
+    .stMarkdown, .stText, p, span, div {
+        color: #ffffff;
     }
     
-    .filter-button {
-        background: rgba(78, 205, 196, 0.2);
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(78, 205, 196, 0.4);
-        border-radius: 12px;
+    /* Info/warning boxes */
+    .stInfo, .stWarning, .stSuccess {
+        background: rgba(102, 126, 234, 0.2);
+        border: 1px solid rgba(102, 126, 234, 0.4);
+        border-radius: 8px;
         color: white;
-        font-weight: 600;
-        padding: 10px 20px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        min-width: 120px;
-    }
-    
-    .filter-button:hover {
-        background: rgba(78, 205, 196, 0.35);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
-        border-color: rgba(78, 205, 196, 0.6);
-    }
-    
-    .filter-button.active {
-        background: rgba(78, 205, 196, 0.5);
-        border-color: rgba(78, 205, 196, 0.8);
-        box-shadow: 0 4px 15px rgba(78, 205, 196, 0.5);
     }
 </style>
 """, unsafe_allow_html=True)
 
 # Main title
-st.markdown('<h1 class="main-header">🎬 Movie Recommender System</h1>', unsafe_allow_html=True)
+st.markdown('''
+<h1 class="main-header">
+    <svg class="header-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path fill="white" d="M18,3v2h-2V3H8v2H6V3H4v18h2v-2h2v2h8v-2h2v2h2V3H18z M8,17H6v-2h2V17z M8,13H6v-2h2V13z M8,9H6V7h2V9z M18,17h-2v-2h2V17z M18,13h-2v-2h2V13z M18,9h-2V7h2V9z"/>
+    </svg>
+    CinemaMatch
+</h1>
+''', unsafe_allow_html=True)
 
 # Movie selection section
 st.markdown('<div style="margin: 30px 0; text-align: center;">', unsafe_allow_html=True)
-st.markdown('<h3 style="color: #4ECDC4; margin-bottom: 20px;">🔍 Find Your Next Favorite Movie</h3>', unsafe_allow_html=True)
+st.markdown('''
+<h3 class="search-title">
+    <svg class="search-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#667eea" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+    </svg>
+    Find Your Next Favorite Movie
+</h3>
+''', unsafe_allow_html=True)
 
 selected_movie_name = st.selectbox(
     'Select a movie to get personalized recommendations:',
@@ -673,14 +650,19 @@ st.markdown('</div>', unsafe_allow_html=True)
 # Filter Section
 st.markdown('''
 <div class="filter-container">
-    <div class="filter-title">🎛️ Advanced Filters (Optional)</div>
+    <div class="filter-title">
+        <svg class="filter-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#667eea" d="M10,18h4v-2h-4V18z M3,6v2h18V6H3z M6,13h12v-2H6V13z"/>
+        </svg>
+        Advanced Filters
+    </div>
 ''', unsafe_allow_html=True)
 
 # Create filter columns
 filter_col1, filter_col2, filter_col3 = st.columns(3)
 
 with filter_col1:
-    enable_genre_filter = st.checkbox("🎭 Filter by Genre")
+    enable_genre_filter = st.checkbox("Filter by Genre")
     if enable_genre_filter:
         genre_options = [
             "Action", "Adventure", "Animation", "Comedy", "Crime", "Documentary", 
@@ -693,7 +675,7 @@ with filter_col1:
         selected_genre = None
 
 with filter_col2:
-    enable_year_filter = st.checkbox("📅 Filter by Year")
+    enable_year_filter = st.checkbox("Filter by Year")
     if enable_year_filter:
         year_range = st.slider(
             "Release Year Range:",
@@ -706,7 +688,7 @@ with filter_col2:
         year_range = None
 
 with filter_col3:
-    enable_rating_filter = st.checkbox("⭐ Filter by Rating")
+    enable_rating_filter = st.checkbox("Filter by Rating")
     if enable_rating_filter:
         min_rating = st.slider(
             "Minimum Rating:",
@@ -726,7 +708,7 @@ col1, col2, col3 = st.columns([1, 1, 1])
 with col2:
     # Show active filters count
     active_filters = sum([enable_genre_filter, enable_year_filter, enable_rating_filter])
-    button_text = f'🎯 Get Recommendations'
+    button_text = f'Get Recommendations'
     if active_filters > 0:
         button_text += f' ({active_filters} filter{"s" if active_filters > 1 else ""})'
     
@@ -748,10 +730,10 @@ if recommend_clicked:
         if filter_rating_min:
             filter_info.append(f"Rating: ≥{filter_rating_min}")
         
-        st.info(f"🔍 Applied filters: {' • '.join(filter_info)}")
+        st.info(f"Applied filters: {' • '.join(filter_info)}")
     
     # Loading animation
-    loading_text = '🎬 Finding amazing movies for you'
+    loading_text = 'Finding amazing movies for you'
     if any([filter_genre, filter_year_range, filter_rating_min]):
         loading_text += ' with your filters'
     loading_text += '...'
@@ -767,12 +749,19 @@ if recommend_clicked:
     # Show filtering results
     if any([filter_genre, filter_year_range, filter_rating_min]):
         if filtered_count == 0:
-            st.warning("⚠️ No movies found matching your filters. Showing top recommendations instead.")
+            st.warning("No movies found matching your filters. Showing top recommendations instead.")
         elif filtered_count < 5:
-            st.success(f"✅ Found {filtered_count} movies matching your filters. Added {5-filtered_count} similar movies to complete the recommendations.")
+            st.success(f"Found {filtered_count} movies matching your filters. Added {5-filtered_count} similar movies to complete the recommendations.")
     
     # Recommendations header
-    st.markdown('<h2 class="recommendations-header">🌟 Recommended Movies for You</h2>', unsafe_allow_html=True)
+    st.markdown('''
+    <h2 class="recommendations-header">
+        <svg class="recommendations-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#ffd700" d="M12,17.27L18.18,21l-1.64-7.03L22,9.24l-7.19-0.61L12,2L9.19,8.63L2,9.24l5.46,4.73L5.82,21L12,17.27z"/>
+        </svg>
+        Recommended Movies for You
+    </h2>
+    ''', unsafe_allow_html=True)
     
     # Display recommendations in properly spaced cards
     st.markdown('<div style="margin: 20px 0; padding: 10px;">', unsafe_allow_html=True)
@@ -790,7 +779,21 @@ if recommend_clicked:
                     <img src="{posters[i]}" class="poster-image" alt="{names[i]} Poster"/>
                 </div>
                 <div class="movie-info">
-                    <div class="movie-rating">⭐⭐⭐⭐ Highly Recommended</div>
+                    <div class="movie-rating">
+                        <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12,17.27L18.18,21l-1.64-7.03L22,9.24l-7.19-0.61L12,2L9.19,8.63L2,9.24l5.46,4.73L5.82,21L12,17.27z"/>
+                        </svg>
+                        <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12,17.27L18.18,21l-1.64-7.03L22,9.24l-7.19-0.61L12,2L9.19,8.63L2,9.24l5.46,4.73L5.82,21L12,17.27z"/>
+                        </svg>
+                        <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12,17.27L18.18,21l-1.64-7.03L22,9.24l-7.19-0.61L12,2L9.19,8.63L2,9.24l5.46,4.73L5.82,21L12,17.27z"/>
+                        </svg>
+                        <svg class="star-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12,17.27L18.18,21l-1.64-7.03L22,9.24l-7.19-0.61L12,2L9.19,8.63L2,9.24l5.46,4.73L5.82,21L12,17.27z"/>
+                        </svg>
+                        Highly Recommended
+                    </div>
                 </div>
             </div>
             ''', unsafe_allow_html=True)
@@ -799,7 +802,10 @@ if recommend_clicked:
             st.markdown(f'''
             <div style="margin-top: 10px; width: 100%; display: flex; justify-content: center;">
                 <button class="movie-button" onclick="alert('More details about {names[i]} coming soon!')">
-                    📖 Learn More
+                    <svg class="button-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14,2H6C4.9,2,4,2.9,4,4v16c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2V8L14,2z M16,18H8v-2h8V18z M16,14H8v-2h8V14z M13,9V3.5 L18.5,9H13z"/>
+                    </svg>
+                    Learn More
                 </button>
             </div>
             ''', unsafe_allow_html=True)
@@ -819,10 +825,12 @@ else:
         st.markdown(f'''
         <div class="metric-card">
             <div style="text-align: center; padding: 20px;">
-                <div style="font-size: 2rem; margin-bottom: 5px;">📚</div>
-                <div style="font-size: 2.5rem; font-weight: bold; color: #4ECDC4; margin-bottom: 5px;">{len(movies)}</div>
-                <div style="font-size: 1rem; color: #666; font-weight: 600;">Total Movies</div>
-                <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">Number of movies in our database</div>
+                <svg class="metric-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#667eea" d="M18,2H6C4.9,2,4,2.9,4,4v16c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2V4C20,2.9,19.1,2,18,2z M18,20H6V4h2v11l2.5-1.5L13,15V4h5V20z"/>
+                </svg>
+                <div style="font-size: 2.5rem; font-weight: bold; color: #667eea; margin: 10px 0;">{len(movies)}</div>
+                <div style="font-size: 1rem; color: #ffffff; font-weight: 600;">Total Movies</div>
+                <div style="font-size: 0.85rem; color: #aaaaaa; margin-top: 5px;">In our database</div>
             </div>
         </div>
         ''', unsafe_allow_html=True)
@@ -831,10 +839,12 @@ else:
         st.markdown('''
         <div class="metric-card">
             <div style="text-align: center; padding: 20px;">
-                <div style="font-size: 2rem; margin-bottom: 5px;">🎯</div>
-                <div style="font-size: 2.5rem; font-weight: bold; color: #4ECDC4; margin-bottom: 5px;">95%</div>
-                <div style="font-size: 1rem; color: #666; font-weight: 600;">Recommendation Accuracy</div>
-                <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">Based on user feedback and ratings</div>
+                <svg class="metric-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#667eea" d="M12,2C6.5,2,2,6.5,2,12s4.5,10,10,10s10-4.5,10-10S17.5,2,12,2z M12,20c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8 S16.4,20,12,20z M16.2,7.5l-4.2,4.2l-2.1-2.1l-1.4,1.4l3.5,3.5l5.6-5.6L16.2,7.5z"/>
+                </svg>
+                <div style="font-size: 2.5rem; font-weight: bold; color: #667eea; margin: 10px 0;">95%</div>
+                <div style="font-size: 1rem; color: #ffffff; font-weight: 600;">Accuracy Rate</div>
+                <div style="font-size: 0.85rem; color: #aaaaaa; margin-top: 5px;">User satisfaction</div>
             </div>
         </div>
         ''', unsafe_allow_html=True)
@@ -843,10 +853,12 @@ else:
         st.markdown('''
         <div class="metric-card">
             <div style="text-align: center; padding: 20px;">
-                <div style="font-size: 2rem; margin-bottom: 5px;">⚡</div>
-                <div style="font-size: 2.5rem; font-weight: bold; color: #4ECDC4; margin-bottom: 5px;">< 2s</div>
-                <div style="font-size: 1rem; color: #666; font-weight: 600;">Response Time</div>
-                <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">Average time to generate recommendations</div>
+                <svg class="metric-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#667eea" d="M7,2V13H10V22L17,10H13L17,2H7Z"/>
+                </svg>
+                <div style="font-size: 2.5rem; font-weight: bold; color: #667eea; margin: 10px 0;">&lt; 2s</div>
+                <div style="font-size: 1rem; color: #ffffff; font-weight: 600;">Response Time</div>
+                <div style="font-size: 0.85rem; color: #aaaaaa; margin-top: 5px;">Average speed</div>
             </div>
         </div>
         ''', unsafe_allow_html=True)
@@ -856,15 +868,16 @@ else:
     # Instructions
     st.markdown("---")
     st.markdown("""
-    ### 🚀 How to Use:
+    ### How to Use
     1. **Select a movie** you enjoyed from the dropdown above
     2. **Click "Get Recommendations"** to discover similar movies
-    3. **Explore the suggestions** and find your next favorite film!
+    3. **Apply filters** (optional) to refine your results by genre, year, or rating
+    4. **Explore the suggestions** and find your next favorite film
     
-    ### 🎭 Features:
-    - **Personalized recommendations** based on movie similarity
-    - **High-quality posters** from The Movie Database
-    - **Fast and accurate** recommendation engine
-    - **User-friendly interface** with responsive design
+    ### Features
+    - **Personalized recommendations** based on movie similarity algorithms
+    - **High-quality posters** from The Movie Database (TMDB)
+    - **Fast and accurate** recommendation engine with intelligent filtering
+    - **Professional interface** with modern design and smooth interactions
     """)
 
